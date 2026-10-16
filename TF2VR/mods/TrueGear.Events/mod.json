@@ -1,0 +1,132 @@
+{
+  "Name": "TrueGear.Events",
+  "Description": "Campaign and VR events; only actual native effect playback is logged. tg_events_log is retained for compatibility.",
+  "Version": "",
+  "LoadPriority": 10,
+  "ConVars": [
+    {
+      "Name": "tg_events_enabled",
+      "DefaultValue": "1"
+    },
+    {
+      "Name": "tg_events_native",
+      "DefaultValue": "1"
+    },
+    {
+      "Name": "tg_events_log",
+      "DefaultValue": "0"
+    },
+    {
+      "Name": "tg_events_combat",
+      "DefaultValue": "1"
+    },
+    {
+      "Name": "tg_events_movement",
+      "DefaultValue": "1"
+    },
+    {
+      "Name": "tg_events_titan",
+      "DefaultValue": "1"
+    },
+    {
+      "Name": "tg_events_vr",
+      "DefaultValue": "1"
+    },
+    {
+      "Name": "tg_events_controller_haptics",
+      "DefaultValue": "1"
+    },
+    {
+      "Name": "tg_events_poll_interval",
+      "DefaultValue": "0.02"
+    },
+    {
+      "Name": "tg_events_low_health",
+      "DefaultValue": "0.25"
+    },
+    {
+      "Name": "tg_events_heavy_land_speed",
+      "DefaultValue": "500"
+    },
+    {
+      "Name": "tg_events_land_min_distance",
+      "DefaultValue": "24.0"
+    },
+    {
+      "Name": "tg_events_continuous",
+      "DefaultValue": "0"
+    },
+    {
+      "Name": "tg_events_pulse_interval",
+      "DefaultValue": "0.25"
+    }
+  ],
+  "Scripts": [
+    {
+      "Path": "tg_events_core.gnut",
+      "RunOn": "(CLIENT || SERVER) && SP",
+      "ClientCallback": {
+        "Before": "TrueGear_CoreInit"
+      },
+      "ServerCallback": {
+        "Before": "TrueGear_CoreInit"
+      }
+    },
+    {
+      "Path": "tg_events_hands.gnut",
+      "RunOn": "(CLIENT || SERVER) && SP",
+      "ClientCallback": {
+        "After": "TrueGear_HandsInit"
+      },
+      "ServerCallback": {
+        "After": "TrueGear_HandsInit"
+      }
+    },
+    {
+      "Path": "tg_events_combat.nut",
+      "RunOn": "CLIENT && SP",
+      "ClientCallback": {
+        "After": "TrueGear_CombatInit"
+      }
+    },
+    {
+      "Path": "tg_events_movement.nut",
+      "RunOn": "SERVER && SP",
+      "ServerCallback": {
+        "After": "TrueGear_MovementInit"
+      }
+    },
+    {
+      "Path": "tg_events_titan.nut",
+      "RunOn": "SERVER && SP",
+      "ServerCallback": {
+        "After": "TrueGear_TitanInit"
+      }
+    },
+    {
+      "Path": "tg_events_titan_shields.nut",
+      "RunOn": "SERVER && SP"
+    },
+    {
+      "Path": "tg_events_vr.nut",
+      "RunOn": "CLIENT && SP",
+      "ClientCallback": {
+        "After": "TrueGear_VRInit"
+      }
+    },
+    {
+      "Path": "tg_events_bootstrap.nut",
+      "RunOn": "SERVER && SP"
+    },
+    {
+      "Path": "tg_events_client_movement.nut",
+      "RunOn": "CLIENT && SP",
+      "ClientCallback": {
+        "After": "TrueGear_ClientMovementInit"
+      }
+    }
+  ],
+  "PluginDependencies": [
+    "TRUEGEAR_NATIVE"
+  ]
+}

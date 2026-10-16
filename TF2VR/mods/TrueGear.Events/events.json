@@ -1,0 +1,1397 @@
+{
+  "schema": "truegear.events/1",
+  "event_count": 151,
+  "verification": "structural_checks_only_engine_compilation_pending",
+  "events": [
+    {
+      "name": "ability_ammo_consumed",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_vr.nut"
+      ]
+    },
+    {
+      "name": "ability_ammo_restored",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_vr.nut"
+      ]
+    },
+    {
+      "name": "ability_charge_fraction_changed",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_vr.nut"
+      ]
+    },
+    {
+      "name": "ability_charge_fraction_max",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_vr.nut"
+      ]
+    },
+    {
+      "name": "ability_charge_fraction_min",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_vr.nut"
+      ]
+    },
+    {
+      "name": "ability_cooldown_end",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_vr.nut"
+      ]
+    },
+    {
+      "name": "ability_cooldown_start",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_vr.nut"
+      ]
+    },
+    {
+      "name": "ability_equipped",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_vr.nut"
+      ]
+    },
+    {
+      "name": "ability_removed",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_vr.nut"
+      ]
+    },
+    {
+      "name": "combat_damage_bullet",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "combat_damage_critical",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "combat_damage_crush",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "combat_damage_dealt",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "combat_damage_electric",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "combat_damage_environment",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "combat_damage_explosion",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "combat_damage_fall",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "combat_damage_fire",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "combat_damage_headshot",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "combat_damage_melee",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "combat_damage_shield",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "combat_damage_taken",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "combat_damage_taken_nondirectional",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "combat_enemy_killed",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_titan.nut"
+      ]
+    },
+    {
+      "name": "combat_hit_critical",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "combat_hit_headshot",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "combat_hit_melee",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "combat_kill_confirmed",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "combat_melee_end",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "combat_melee_start",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "health_changed",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "health_full",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "health_low",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "health_recovered",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "health_regen_start",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "health_snapshot",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "movement_crouch_start",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_client_movement.nut",
+        "tg_events_movement.nut"
+      ]
+    },
+    {
+      "name": "movement_crouch_stop",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_client_movement.nut",
+        "tg_events_movement.nut"
+      ]
+    },
+    {
+      "name": "movement_dash",
+      "sources": [
+        "callback",
+        "poll"
+      ],
+      "modules": [
+        "tg_events_client_movement.nut",
+        "tg_events_movement.nut"
+      ]
+    },
+    {
+      "name": "movement_double_jump",
+      "sources": [
+        "callback",
+        "poll"
+      ],
+      "modules": [
+        "tg_events_client_movement.nut",
+        "tg_events_movement.nut"
+      ]
+    },
+    {
+      "name": "movement_fall_start",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_client_movement.nut",
+        "tg_events_movement.nut"
+      ]
+    },
+    {
+      "name": "movement_fall_stop",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_client_movement.nut",
+        "tg_events_movement.nut"
+      ]
+    },
+    {
+      "name": "movement_jump",
+      "sources": [
+        "callback",
+        "poll"
+      ],
+      "modules": [
+        "tg_events_client_movement.nut",
+        "tg_events_movement.nut"
+      ]
+    },
+    {
+      "name": "movement_land",
+      "sources": [
+        "callback",
+        "poll"
+      ],
+      "modules": [
+        "tg_events_client_movement.nut",
+        "tg_events_movement.nut"
+      ]
+    },
+    {
+      "name": "movement_leave_ground",
+      "sources": [
+        "callback",
+        "poll"
+      ],
+      "modules": [
+        "tg_events_client_movement.nut",
+        "tg_events_movement.nut"
+      ]
+    },
+    {
+      "name": "movement_move_start",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_client_movement.nut",
+        "tg_events_movement.nut"
+      ]
+    },
+    {
+      "name": "movement_move_stop",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_client_movement.nut",
+        "tg_events_movement.nut"
+      ]
+    },
+    {
+      "name": "movement_pulse",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_client_movement.nut",
+        "tg_events_movement.nut"
+      ]
+    },
+    {
+      "name": "movement_slide_start",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_client_movement.nut",
+        "tg_events_movement.nut"
+      ]
+    },
+    {
+      "name": "movement_slide_stop",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_client_movement.nut",
+        "tg_events_movement.nut"
+      ]
+    },
+    {
+      "name": "movement_sprint_start",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_client_movement.nut",
+        "tg_events_movement.nut"
+      ]
+    },
+    {
+      "name": "movement_sprint_stop",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_client_movement.nut",
+        "tg_events_movement.nut"
+      ]
+    },
+    {
+      "name": "player_context_action_start",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_client_movement.nut",
+        "tg_events_movement.nut"
+      ]
+    },
+    {
+      "name": "player_context_action_stop",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_client_movement.nut",
+        "tg_events_movement.nut"
+      ]
+    },
+    {
+      "name": "player_death",
+      "sources": [
+        "callback",
+        "poll"
+      ],
+      "modules": [
+        "tg_events_client_movement.nut",
+        "tg_events_movement.nut"
+      ]
+    },
+    {
+      "name": "player_despawn",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_movement.nut"
+      ]
+    },
+    {
+      "name": "player_execution_start",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_client_movement.nut",
+        "tg_events_movement.nut"
+      ]
+    },
+    {
+      "name": "player_execution_stop",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_client_movement.nut",
+        "tg_events_movement.nut"
+      ]
+    },
+    {
+      "name": "player_phase_shift_start",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_client_movement.nut",
+        "tg_events_movement.nut"
+      ]
+    },
+    {
+      "name": "player_phase_shift_stop",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_client_movement.nut",
+        "tg_events_movement.nut"
+      ]
+    },
+    {
+      "name": "player_spawn",
+      "sources": [
+        "callback",
+        "poll"
+      ],
+      "modules": [
+        "tg_events_client_movement.nut",
+        "tg_events_movement.nut"
+      ]
+    },
+    {
+      "name": "session_ready",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_core.gnut"
+      ]
+    },
+    {
+      "name": "shield_broken",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "shield_changed",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "shield_full",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "shield_regen_end",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "shield_regen_start",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "shield_restored",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "shield_snapshot",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "titan_auto_assigned",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_titan.nut"
+      ]
+    },
+    {
+      "name": "titan_auto_unassigned",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_titan.nut"
+      ]
+    },
+    {
+      "name": "titan_core_active_end",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_vr.nut"
+      ]
+    },
+    {
+      "name": "titan_core_active_start",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_vr.nut"
+      ]
+    },
+    {
+      "name": "titan_core_charge_changed",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_vr.nut"
+      ]
+    },
+    {
+      "name": "titan_core_ready",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_vr.nut"
+      ]
+    },
+    {
+      "name": "titan_destroyed",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_titan.nut"
+      ]
+    },
+    {
+      "name": "titan_disembark_complete",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_titan.nut"
+      ]
+    },
+    {
+      "name": "titan_doomed",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_titan.nut"
+      ]
+    },
+    {
+      "name": "titan_embark_complete",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_titan.nut"
+      ]
+    },
+    {
+      "name": "titan_footstep_inferred",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_vr.nut"
+      ]
+    },
+    {
+      "name": "titan_gun_shield_impact",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_titan_shields.nut"
+      ]
+    },
+    {
+      "name": "titan_heat_shield_impact",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_titan_shields.nut"
+      ]
+    },
+    {
+      "name": "titan_particle_wall_impact",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_titan_shields.nut"
+      ]
+    },
+    {
+      "name": "titan_shield_damage",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_titan.nut"
+      ]
+    },
+    {
+      "name": "titan_sword_block_impact",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_titan_shields.nut"
+      ]
+    },
+    {
+      "name": "titan_vortex_shield_impact",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_titan_shields.nut"
+      ]
+    },
+    {
+      "name": "titan_vortex_shield_reflect",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_titan_shields.nut"
+      ]
+    },
+    {
+      "name": "vr_ammo_pouch_taken_left_shoulder",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_hands.gnut"
+      ]
+    },
+    {
+      "name": "vr_ammo_pouch_taken_right_shoulder",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_hands.gnut"
+      ]
+    },
+    {
+      "name": "vr_ammo_pouch_taken_shoulders",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_hands.gnut"
+      ]
+    },
+    {
+      "name": "vr_chest_hidden",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_vr.nut"
+      ]
+    },
+    {
+      "name": "vr_chest_visible",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_vr.nut"
+      ]
+    },
+    {
+      "name": "vr_controller_haptic_left",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_hands.gnut"
+      ]
+    },
+    {
+      "name": "vr_controller_haptic_right",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_hands.gnut"
+      ]
+    },
+    {
+      "name": "vr_grenade_cancel_requested",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_hands.gnut"
+      ]
+    },
+    {
+      "name": "vr_grenade_grab_accepted",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_vr.nut"
+      ]
+    },
+    {
+      "name": "vr_grenade_grab_rejected",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_vr.nut"
+      ]
+    },
+    {
+      "name": "vr_grenade_store_requested",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_hands.gnut"
+      ]
+    },
+    {
+      "name": "vr_grenade_thrown_predicted",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_hands.gnut"
+      ]
+    },
+    {
+      "name": "vr_holster_available",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_vr.nut"
+      ]
+    },
+    {
+      "name": "vr_holster_unavailable",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_vr.nut"
+      ]
+    },
+    {
+      "name": "vr_item_grab_rejected",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_hands.gnut"
+      ]
+    },
+    {
+      "name": "vr_item_grabbed",
+      "sources": [
+        "callback"
+      ],
+      "modules": [
+        "tg_events_hands.gnut"
+      ]
+    },
+    {
+      "name": "vr_pickup_target_entered",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_vr.nut"
+      ]
+    },
+    {
+      "name": "vr_pickup_target_left",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_vr.nut"
+      ]
+    },
+    {
+      "name": "vr_recenter",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_vr.nut"
+      ]
+    },
+    {
+      "name": "vr_reload_empty_pouch",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_vr.nut"
+      ]
+    },
+    {
+      "name": "vr_reload_guide_started",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_vr.nut"
+      ]
+    },
+    {
+      "name": "vr_reload_guide_stopped",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_vr.nut"
+      ]
+    },
+    {
+      "name": "vr_reload_magazine_ejected",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_vr.nut"
+      ]
+    },
+    {
+      "name": "vr_reload_magazine_out",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_vr.nut"
+      ]
+    },
+    {
+      "name": "vr_reload_magazine_out_cleared",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_vr.nut"
+      ]
+    },
+    {
+      "name": "vr_reload_round_ejected",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_vr.nut"
+      ]
+    },
+    {
+      "name": "vr_slot_item_stored_grenade",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_hands.gnut"
+      ]
+    },
+    {
+      "name": "vr_slot_item_stored_left_hip",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_hands.gnut"
+      ]
+    },
+    {
+      "name": "vr_slot_item_stored_left_shoulder",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_hands.gnut"
+      ]
+    },
+    {
+      "name": "vr_slot_item_stored_right_hip",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_hands.gnut"
+      ]
+    },
+    {
+      "name": "vr_slot_item_stored_right_shoulder",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_hands.gnut"
+      ]
+    },
+    {
+      "name": "vr_slot_item_stored_shoulders",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_hands.gnut"
+      ]
+    },
+    {
+      "name": "vr_slot_item_taken_grenade",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_hands.gnut"
+      ]
+    },
+    {
+      "name": "vr_slot_item_taken_left_hip",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_hands.gnut"
+      ]
+    },
+    {
+      "name": "vr_slot_item_taken_left_shoulder",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_hands.gnut"
+      ]
+    },
+    {
+      "name": "vr_slot_item_taken_right_hip",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_hands.gnut"
+      ]
+    },
+    {
+      "name": "vr_slot_item_taken_right_shoulder",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_hands.gnut"
+      ]
+    },
+    {
+      "name": "vr_slot_item_taken_shoulders",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_hands.gnut"
+      ]
+    },
+    {
+      "name": "vr_weapon_equip_accepted",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_vr.nut"
+      ]
+    },
+    {
+      "name": "vr_weapon_equip_rejected",
+      "sources": [
+        "vr_state"
+      ],
+      "modules": [
+        "tg_events_vr.nut"
+      ]
+    },
+    {
+      "name": "weapon_aim_end",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "weapon_aim_start",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "weapon_ammo_changed",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "weapon_ammo_empty",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "weapon_ammo_refilled",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "weapon_charge_fraction_max",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "weapon_charge_fraction_min",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "weapon_charge_level",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "weapon_charge_rise_end",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "weapon_charge_rise_start",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "weapon_equipped",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "weapon_holstered",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "weapon_reload_complete_inferred",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "weapon_reload_end",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "weapon_reload_start",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "weapon_shot_anti_titan",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "weapon_shot_inferred",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "weapon_shot_lmg",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "weapon_shot_pistol",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "weapon_shot_rifle",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "weapon_shot_shotgun",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "weapon_shot_smg",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "weapon_shot_sniper",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    },
+    {
+      "name": "weapon_shot_special",
+      "sources": [
+        "poll"
+      ],
+      "modules": [
+        "tg_events_combat.nut"
+      ]
+    }
+  ]
+}

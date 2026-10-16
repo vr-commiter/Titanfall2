@@ -1,0 +1,672 @@
+{
+  "allow_inferred_hands": true,
+  "api_key": "Titanfall2",
+  "app_id": "1237970",
+  "body_slot_effects": {
+    "vr_ammo_pouch_taken_left_shoulder": {
+      "keep": false,
+      "name": "vr_ammo_pouch_taken_left_shoulder",
+      "tracks": [
+        {
+          "action_type": "Shake",
+          "end_intensity": 30,
+          "end_time": 100,
+          "index": [
+            100,
+            101
+          ],
+          "intensity_mode": "Const",
+          "interval": 0,
+          "once": false,
+          "start_intensity": 30,
+          "start_time": 0,
+          "stop_name": ""
+        }
+      ],
+      "uuid": "vr_ammo_pouch_taken_left_shoulder"
+    },
+    "vr_ammo_pouch_taken_right_shoulder": {
+      "keep": false,
+      "name": "vr_ammo_pouch_taken_right_shoulder",
+      "tracks": [
+        {
+          "action_type": "Shake",
+          "end_intensity": 30,
+          "end_time": 100,
+          "index": [
+            102,
+            103
+          ],
+          "intensity_mode": "Const",
+          "interval": 0,
+          "once": false,
+          "start_intensity": 30,
+          "start_time": 0,
+          "stop_name": ""
+        }
+      ],
+      "uuid": "vr_ammo_pouch_taken_right_shoulder"
+    },
+    "vr_ammo_pouch_taken_shoulders": {
+      "keep": false,
+      "name": "vr_ammo_pouch_taken_shoulders",
+      "tracks": [
+        {
+          "action_type": "Shake",
+          "end_intensity": 30,
+          "end_time": 100,
+          "index": [
+            100,
+            101,
+            102,
+            103
+          ],
+          "intensity_mode": "Const",
+          "interval": 0,
+          "once": false,
+          "start_intensity": 30,
+          "start_time": 0,
+          "stop_name": ""
+        }
+      ],
+      "uuid": "vr_ammo_pouch_taken_shoulders"
+    },
+    "vr_slot_item_stored_grenade": {
+      "keep": false,
+      "name": "vr_slot_item_stored_grenade",
+      "tracks": [
+        {
+          "action_type": "Shake",
+          "end_intensity": 30,
+          "end_time": 150,
+          "index": [
+            1,
+            2,
+            5,
+            6
+          ],
+          "intensity_mode": "Const",
+          "interval": 0,
+          "once": false,
+          "start_intensity": 30,
+          "start_time": 0,
+          "stop_name": ""
+        }
+      ],
+      "uuid": "vr_slot_item_stored_grenade"
+    },
+    "vr_slot_item_stored_left_hip": {
+      "keep": false,
+      "name": "vr_slot_item_stored_left_hip",
+      "tracks": [
+        {
+          "action_type": "Shake",
+          "end_intensity": 30,
+          "end_time": 150,
+          "index": [
+            112,
+            116
+          ],
+          "intensity_mode": "Const",
+          "interval": 0,
+          "once": false,
+          "start_intensity": 30,
+          "start_time": 0,
+          "stop_name": ""
+        }
+      ],
+      "uuid": "vr_slot_item_stored_left_hip"
+    },
+    "vr_slot_item_stored_left_shoulder": {
+      "keep": false,
+      "name": "vr_slot_item_stored_left_shoulder",
+      "tracks": [
+        {
+          "action_type": "Shake",
+          "end_intensity": 30,
+          "end_time": 150,
+          "index": [
+            100,
+            101
+          ],
+          "intensity_mode": "Const",
+          "interval": 0,
+          "once": false,
+          "start_intensity": 30,
+          "start_time": 0,
+          "stop_name": ""
+        }
+      ],
+      "uuid": "vr_slot_item_stored_left_shoulder"
+    },
+    "vr_slot_item_stored_right_hip": {
+      "keep": false,
+      "name": "vr_slot_item_stored_right_hip",
+      "tracks": [
+        {
+          "action_type": "Shake",
+          "end_intensity": 30,
+          "end_time": 150,
+          "index": [
+            115,
+            119
+          ],
+          "intensity_mode": "Const",
+          "interval": 0,
+          "once": false,
+          "start_intensity": 30,
+          "start_time": 0,
+          "stop_name": ""
+        }
+      ],
+      "uuid": "vr_slot_item_stored_right_hip"
+    },
+    "vr_slot_item_stored_right_shoulder": {
+      "keep": false,
+      "name": "vr_slot_item_stored_right_shoulder",
+      "tracks": [
+        {
+          "action_type": "Shake",
+          "end_intensity": 30,
+          "end_time": 150,
+          "index": [
+            102,
+            103
+          ],
+          "intensity_mode": "Const",
+          "interval": 0,
+          "once": false,
+          "start_intensity": 30,
+          "start_time": 0,
+          "stop_name": ""
+        }
+      ],
+      "uuid": "vr_slot_item_stored_right_shoulder"
+    },
+    "vr_slot_item_stored_shoulders": {
+      "keep": false,
+      "name": "vr_slot_item_stored_shoulders",
+      "tracks": [
+        {
+          "action_type": "Shake",
+          "end_intensity": 30,
+          "end_time": 150,
+          "index": [
+            100,
+            101,
+            102,
+            103
+          ],
+          "intensity_mode": "Const",
+          "interval": 0,
+          "once": false,
+          "start_intensity": 30,
+          "start_time": 0,
+          "stop_name": ""
+        }
+      ],
+      "uuid": "vr_slot_item_stored_shoulders"
+    },
+    "vr_slot_item_taken_grenade": {
+      "keep": false,
+      "name": "vr_slot_item_taken_grenade",
+      "tracks": [
+        {
+          "action_type": "Shake",
+          "end_intensity": 30,
+          "end_time": 100,
+          "index": [
+            1,
+            2,
+            5,
+            6
+          ],
+          "intensity_mode": "Const",
+          "interval": 0,
+          "once": false,
+          "start_intensity": 30,
+          "start_time": 0,
+          "stop_name": ""
+        }
+      ],
+      "uuid": "vr_slot_item_taken_grenade"
+    },
+    "vr_slot_item_taken_left_hip": {
+      "keep": false,
+      "name": "vr_slot_item_taken_left_hip",
+      "tracks": [
+        {
+          "action_type": "Shake",
+          "end_intensity": 30,
+          "end_time": 100,
+          "index": [
+            112,
+            116
+          ],
+          "intensity_mode": "Const",
+          "interval": 0,
+          "once": false,
+          "start_intensity": 30,
+          "start_time": 0,
+          "stop_name": ""
+        }
+      ],
+      "uuid": "vr_slot_item_taken_left_hip"
+    },
+    "vr_slot_item_taken_left_shoulder": {
+      "keep": false,
+      "name": "vr_slot_item_taken_left_shoulder",
+      "tracks": [
+        {
+          "action_type": "Shake",
+          "end_intensity": 30,
+          "end_time": 100,
+          "index": [
+            100,
+            101
+          ],
+          "intensity_mode": "Const",
+          "interval": 0,
+          "once": false,
+          "start_intensity": 30,
+          "start_time": 0,
+          "stop_name": ""
+        }
+      ],
+      "uuid": "vr_slot_item_taken_left_shoulder"
+    },
+    "vr_slot_item_taken_right_hip": {
+      "keep": false,
+      "name": "vr_slot_item_taken_right_hip",
+      "tracks": [
+        {
+          "action_type": "Shake",
+          "end_intensity": 30,
+          "end_time": 100,
+          "index": [
+            115,
+            119
+          ],
+          "intensity_mode": "Const",
+          "interval": 0,
+          "once": false,
+          "start_intensity": 30,
+          "start_time": 0,
+          "stop_name": ""
+        }
+      ],
+      "uuid": "vr_slot_item_taken_right_hip"
+    },
+    "vr_slot_item_taken_right_shoulder": {
+      "keep": false,
+      "name": "vr_slot_item_taken_right_shoulder",
+      "tracks": [
+        {
+          "action_type": "Shake",
+          "end_intensity": 30,
+          "end_time": 100,
+          "index": [
+            102,
+            103
+          ],
+          "intensity_mode": "Const",
+          "interval": 0,
+          "once": false,
+          "start_intensity": 30,
+          "start_time": 0,
+          "stop_name": ""
+        }
+      ],
+      "uuid": "vr_slot_item_taken_right_shoulder"
+    },
+    "vr_slot_item_taken_shoulders": {
+      "keep": false,
+      "name": "vr_slot_item_taken_shoulders",
+      "tracks": [
+        {
+          "action_type": "Shake",
+          "end_intensity": 30,
+          "end_time": 100,
+          "index": [
+            100,
+            101,
+            102,
+            103
+          ],
+          "intensity_mode": "Const",
+          "interval": 0,
+          "once": false,
+          "start_intensity": 30,
+          "start_time": 0,
+          "stop_name": ""
+        }
+      ],
+      "uuid": "vr_slot_item_taken_shoulders"
+    }
+  },
+  "dry_run": false,
+  "enabled": true,
+  "event_names_note": "Use English letters, digits, and underscores. Suggested Player event names are editable; matching Player events are not confirmed.",
+  "max_event_age_ms": 250,
+  "max_queue": 256,
+  "preload_events": [],
+  "reconnect_ms": 2000,
+  "routes": {
+    "combat_damage_taken": {
+      "cooldown_ms": 40,
+      "enabled": true,
+      "uuid": "combat_damage_taken"
+    },
+    "combat_damage_taken_nondirectional": {
+      "cooldown_ms": 40,
+      "enabled": true,
+      "uuid": "combat_damage_taken_nondirectional"
+    },
+    "health_low": {
+      "cooldown_ms": 1000,
+      "enabled": true,
+      "uuid": "health_low"
+    },
+    "health_regen_start": {
+      "cooldown_ms": 1000,
+      "enabled": true,
+      "uuid": "health_regen_start"
+    },
+    "movement_dash": {
+      "cooldown_ms": 100,
+      "enabled": true,
+      "uuid": "movement_dash"
+    },
+    "movement_double_jump": {
+      "cooldown_ms": 100,
+      "enabled": true,
+      "uuid": "movement_double_jump"
+    },
+    "movement_jump": {
+      "cooldown_ms": 100,
+      "enabled": true,
+      "uuid": "movement_jump"
+    },
+    "movement_land": {
+      "cooldown_ms": 110,
+      "enabled": true,
+      "uuid": "movement_land"
+    },
+    "movement_slide_start": {
+      "cooldown_ms": 200,
+      "enabled": true,
+      "uuid": "movement_slide_start"
+    },
+    "player_death": {
+      "cooldown_ms": 0,
+      "enabled": true,
+      "uuid": "player_death"
+    },
+    "player_execution_start": {
+      "cooldown_ms": 400,
+      "enabled": true,
+      "uuid": "player_execution_start"
+    },
+    "player_phase_shift_start": {
+      "cooldown_ms": 400,
+      "enabled": true,
+      "uuid": "player_phase_shift_start"
+    },
+    "shield_broken": {
+      "cooldown_ms": 200,
+      "enabled": true,
+      "uuid": "shield_broken"
+    },
+    "shield_restored": {
+      "cooldown_ms": 500,
+      "enabled": true,
+      "uuid": "shield_restored"
+    },
+    "titan_core_active_end": {
+      "cooldown_ms": 500,
+      "enabled": true,
+      "uuid": "titan_core_active_end"
+    },
+    "titan_core_active_start": {
+      "cooldown_ms": 500,
+      "enabled": true,
+      "uuid": "titan_core_active_start"
+    },
+    "titan_core_ready": {
+      "cooldown_ms": 500,
+      "enabled": true,
+      "uuid": "titan_core_ready"
+    },
+    "titan_destroyed": {
+      "cooldown_ms": 600,
+      "enabled": true,
+      "uuid": "titan_destroyed"
+    },
+    "titan_disembark_complete": {
+      "cooldown_ms": 600,
+      "enabled": true,
+      "uuid": "titan_disembark_complete"
+    },
+    "titan_doomed": {
+      "cooldown_ms": 600,
+      "enabled": true,
+      "uuid": "titan_doomed"
+    },
+    "titan_embark_complete": {
+      "cooldown_ms": 600,
+      "enabled": true,
+      "uuid": "titan_embark_complete"
+    },
+    "titan_footstep_inferred": {
+      "cooldown_ms": 120,
+      "enabled": true,
+      "uuid": "titan_footstep_inferred"
+    },
+    "titan_gun_shield_impact": {
+      "cooldown_ms": 40,
+      "enabled": true,
+      "uuid": "titan_gun_shield_impact"
+    },
+    "titan_heat_shield_impact": {
+      "cooldown_ms": 40,
+      "enabled": true,
+      "uuid": "titan_heat_shield_impact"
+    },
+    "titan_particle_wall_impact": {
+      "cooldown_ms": 80,
+      "enabled": true,
+      "uuid": "titan_particle_wall_impact"
+    },
+    "titan_sword_block_impact": {
+      "cooldown_ms": 40,
+      "enabled": true,
+      "uuid": "titan_sword_block_impact"
+    },
+    "titan_vortex_shield_impact": {
+      "cooldown_ms": 40,
+      "enabled": true,
+      "uuid": "titan_vortex_shield_impact"
+    },
+    "titan_vortex_shield_reflect": {
+      "cooldown_ms": 40,
+      "enabled": true,
+      "uuid": "titan_vortex_shield_reflect"
+    },
+    "vr_ammo_pouch_taken_left_shoulder": {
+      "cooldown_ms": 90,
+      "enabled": true,
+      "uuid": "vr_ammo_pouch_taken_left_shoulder"
+    },
+    "vr_ammo_pouch_taken_right_shoulder": {
+      "cooldown_ms": 90,
+      "enabled": true,
+      "uuid": "vr_ammo_pouch_taken_right_shoulder"
+    },
+    "vr_ammo_pouch_taken_shoulders": {
+      "cooldown_ms": 90,
+      "enabled": true,
+      "uuid": "vr_ammo_pouch_taken_shoulders"
+    },
+    "vr_controller_haptic_left": {
+      "cooldown_ms": 100,
+      "enabled": true,
+      "uuid": "vr_controller_haptic_left"
+    },
+    "vr_controller_haptic_right": {
+      "cooldown_ms": 100,
+      "enabled": true,
+      "uuid": "vr_controller_haptic_right"
+    },
+    "vr_grenade_thrown_predicted": {
+      "cooldown_ms": 120,
+      "enabled": true,
+      "hands": {
+        "left_uuid": "vr_grenade_thrown_predicted_left",
+        "right_uuid": "vr_grenade_thrown_predicted_right"
+      }
+    },
+    "vr_item_grabbed": {
+      "cooldown_ms": 90,
+      "enabled": true,
+      "hands": {
+        "left_uuid": "vr_item_grabbed_left",
+        "right_uuid": "vr_item_grabbed_right"
+      }
+    },
+    "vr_slot_item_stored_grenade": {
+      "cooldown_ms": 90,
+      "enabled": true,
+      "uuid": "vr_slot_item_stored_grenade"
+    },
+    "vr_slot_item_stored_left_hip": {
+      "cooldown_ms": 90,
+      "enabled": true,
+      "uuid": "vr_slot_item_stored_left_hip"
+    },
+    "vr_slot_item_stored_left_shoulder": {
+      "cooldown_ms": 90,
+      "enabled": true,
+      "uuid": "vr_slot_item_stored_left_shoulder"
+    },
+    "vr_slot_item_stored_right_hip": {
+      "cooldown_ms": 90,
+      "enabled": true,
+      "uuid": "vr_slot_item_stored_right_hip"
+    },
+    "vr_slot_item_stored_right_shoulder": {
+      "cooldown_ms": 90,
+      "enabled": true,
+      "uuid": "vr_slot_item_stored_right_shoulder"
+    },
+    "vr_slot_item_stored_shoulders": {
+      "cooldown_ms": 90,
+      "enabled": true,
+      "uuid": "vr_slot_item_stored_shoulders"
+    },
+    "vr_slot_item_taken_grenade": {
+      "cooldown_ms": 90,
+      "enabled": true,
+      "uuid": "vr_slot_item_taken_grenade"
+    },
+    "vr_slot_item_taken_left_hip": {
+      "cooldown_ms": 90,
+      "enabled": true,
+      "uuid": "vr_slot_item_taken_left_hip"
+    },
+    "vr_slot_item_taken_left_shoulder": {
+      "cooldown_ms": 90,
+      "enabled": true,
+      "uuid": "vr_slot_item_taken_left_shoulder"
+    },
+    "vr_slot_item_taken_right_hip": {
+      "cooldown_ms": 90,
+      "enabled": true,
+      "uuid": "vr_slot_item_taken_right_hip"
+    },
+    "vr_slot_item_taken_right_shoulder": {
+      "cooldown_ms": 90,
+      "enabled": true,
+      "uuid": "vr_slot_item_taken_right_shoulder"
+    },
+    "vr_slot_item_taken_shoulders": {
+      "cooldown_ms": 90,
+      "enabled": true,
+      "uuid": "vr_slot_item_taken_shoulders"
+    },
+    "weapon_shot_anti_titan": {
+      "cooldown_ms": 45,
+      "enabled": true,
+      "hands": {
+        "left_uuid": "weapon_shot_anti_titan_left",
+        "right_uuid": "weapon_shot_anti_titan_right"
+      }
+    },
+    "weapon_shot_inferred": {
+      "cooldown_ms": 45,
+      "enabled": true,
+      "hands": {
+        "left_uuid": "weapon_shot_inferred_left",
+        "right_uuid": "weapon_shot_inferred_right",
+        "titan_uuid": "weapon_shot_inferred_titan"
+      }
+    },
+    "weapon_shot_lmg": {
+      "cooldown_ms": 45,
+      "enabled": true,
+      "hands": {
+        "left_uuid": "weapon_shot_lmg_left",
+        "right_uuid": "weapon_shot_lmg_right"
+      }
+    },
+    "weapon_shot_pistol": {
+      "cooldown_ms": 45,
+      "enabled": true,
+      "hands": {
+        "left_uuid": "weapon_shot_pistol_left",
+        "right_uuid": "weapon_shot_pistol_right"
+      }
+    },
+    "weapon_shot_rifle": {
+      "cooldown_ms": 45,
+      "enabled": true,
+      "hands": {
+        "left_uuid": "weapon_shot_rifle_left",
+        "right_uuid": "weapon_shot_rifle_right"
+      }
+    },
+    "weapon_shot_shotgun": {
+      "cooldown_ms": 45,
+      "enabled": true,
+      "hands": {
+        "left_uuid": "weapon_shot_shotgun_left",
+        "right_uuid": "weapon_shot_shotgun_right"
+      }
+    },
+    "weapon_shot_smg": {
+      "cooldown_ms": 45,
+      "enabled": true,
+      "hands": {
+        "left_uuid": "weapon_shot_smg_left",
+        "right_uuid": "weapon_shot_smg_right"
+      }
+    },
+    "weapon_shot_sniper": {
+      "cooldown_ms": 45,
+      "enabled": true,
+      "hands": {
+        "left_uuid": "weapon_shot_sniper_left",
+        "right_uuid": "weapon_shot_sniper_right"
+      }
+    },
+    "weapon_shot_special": {
+      "cooldown_ms": 45,
+      "enabled": true,
+      "hands": {
+        "left_uuid": "weapon_shot_special_left",
+        "right_uuid": "weapon_shot_special_right"
+      }
+    }
+  },
+  "schema": "truegear.native/2",
+  "log_events": true
+}

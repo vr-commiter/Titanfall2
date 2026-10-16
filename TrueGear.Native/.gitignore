@@ -1,0 +1,37 @@
+# Native build and release output
+build/
+dist/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+CTestTestfile.cmake
+Testing/
+*.obj
+*.pdb
+*.ilk
+*.lib
+*.exp
+
+# Local diagnostics, backups, extraction and caches
+devtools/*
+!devtools/sdk_protocol.json
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.log
+TrueGear-install-backups/
+vr_overrides.manifest.json
+tf2vr_pickups.gnut
+tf2vr_eye_case.gnut
+_vortex.nut
+_particle_wall.gnut
+mp_titanweapon_heat_shield.nut
+mp_titanability_basic_block.nut
+mp_titanweapon_vortex_shield.nut
+
+# IDE and OS state
+.vs/
+.vscode/
+Thumbs.db
+Desktop.ini
+.DS_Store

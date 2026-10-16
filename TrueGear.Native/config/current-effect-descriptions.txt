@@ -1,0 +1,231 @@
+Titanfall 2 VR — 当前启用特效及用途
+
+依据：TF2VR/plugins/TrueGear/titanfall2-truegear.json
+当前启用 56 条播放路由，展开后共 68 个不同特效名称。
+其中 15 个身体槽位／弹药袋特效为插件内置背心内容，其余 53 个使用 Player 对应资源。
+
+说明：
+1. 枪械左右后缀对应实际持枪手或支撑手，双手持枪时同类别左右各播一次。
+2. 身体槽位左右后缀代表身体位置，与哪只手操作无关；shoulders 是无法区分左右肩时的双肩反馈。
+3. 手柄同步已过滤确认来源的重复反馈；同一采集帧左右合并发送，保留各自振幅。
+4. 五种防御能力的 impact 只在实际挡住敌方攻击时触发，举盾、持盾、收盾不触发。
+5. vr_controller_haptic_frame 是同帧合包标识，不是需要另建的基础特效。
+6. 本清单对应配置中启用的播放特效；检测与日志事件不等于额外特效。
+
+受伤、生命与护盾（7 个）
+
+01. combat_damage_taken
+    有明确方向的受伤反馈，例如枪击、近战或爆炸；根据伤害来源方向播放。
+
+02. combat_damage_taken_nondirectional
+    无方向受伤反馈，例如摔落、溺水、毒雾、区域环境伤害，或无法取得可靠方向的伤害。
+
+03. health_low
+    血量首次进入低血区间时触发，默认阈值为最大生命值的 25%；不会在低血期间持续重复。
+
+04. health_regen_start
+    生命值开始增加时触发，同一段连续回血只触发一次。
+
+05. shield_broken
+    自身当前护盾从有盾变为耗尽时触发。
+
+06. shield_restored
+    自身护盾从零恢复到正值时触发，表示重新有盾，不代表回满。
+
+07. player_death
+    实际本地玩家死亡时触发一次；先清理之前的输出，再播放死亡反馈。
+
+移动与角色动作（7 个）
+
+08. movement_jump
+    普通跳跃。
+
+09. movement_double_jump
+    二段跳。
+
+10. movement_land
+    落地；单次腾空最高点到落点的下降距离至少达到 24 游戏单位才触发。
+
+11. movement_dash
+    闪避冲刺，包括泰坦 Dash；普通跑步不会触发。
+
+12. movement_slide_start
+    滑铲期间维持反馈，滑铲结束时停止。
+
+13. player_phase_shift_start
+    进入相位转移状态时触发。
+
+14. player_execution_start
+    进入近战处决动作时触发。
+
+枪械射击（19 个）
+
+15. weapon_shot_pistol_left
+    手枪射击时的左手反馈；双手持枪时左右各播放一次。
+
+16. weapon_shot_pistol_right
+    手枪射击时的右手反馈；双手持枪时左右各播放一次。
+
+17. weapon_shot_rifle_left
+    突击步枪射击时的左手反馈；双手持枪时左右各播放一次。
+
+18. weapon_shot_rifle_right
+    突击步枪射击时的右手反馈；双手持枪时左右各播放一次。
+
+19. weapon_shot_smg_left
+    冲锋枪射击时的左手反馈；双手持枪时左右各播放一次。
+
+20. weapon_shot_smg_right
+    冲锋枪射击时的右手反馈；双手持枪时左右各播放一次。
+
+21. weapon_shot_lmg_left
+    轻机枪射击时的左手反馈；双手持枪时左右各播放一次。
+
+22. weapon_shot_lmg_right
+    轻机枪射击时的右手反馈；双手持枪时左右各播放一次。
+
+23. weapon_shot_shotgun_left
+    霰弹枪射击时的左手反馈；双手持枪时左右各播放一次。
+
+24. weapon_shot_shotgun_right
+    霰弹枪射击时的右手反馈；双手持枪时左右各播放一次。
+
+25. weapon_shot_sniper_left
+    狙击枪射击时的左手反馈；双手持枪时左右各播放一次。
+
+26. weapon_shot_sniper_right
+    狙击枪射击时的右手反馈；双手持枪时左右各播放一次。
+
+27. weapon_shot_special_left
+    特殊武器射击时的左手反馈；双手持枪时左右各播放一次。
+
+28. weapon_shot_special_right
+    特殊武器射击时的右手反馈；双手持枪时左右各播放一次。
+
+29. weapon_shot_anti_titan_left
+    反泰坦武器射击时的左手反馈；双手持枪时左右各播放一次。
+
+30. weapon_shot_anti_titan_right
+    反泰坦武器射击时的右手反馈；双手持枪时左右各播放一次。
+
+31. weapon_shot_inferred_left
+    枪械类型无法识别时的左手备用射击反馈。
+
+32. weapon_shot_inferred_right
+    枪械类型无法识别时的右手备用射击反馈。
+
+33. weapon_shot_inferred_titan
+    驾驶泰坦时的统一射击反馈，不按八种枪械类型或左右手再细分。
+
+泰坦状态与防御能力（14 个）
+
+34. titan_embark_complete
+    本地玩家完成登上泰坦时触发。
+
+35. titan_disembark_complete
+    本地玩家完成离开泰坦时触发。
+
+36. titan_footstep_inferred
+    驾驶泰坦走路的脚步，按移动和动画周期推断；左右脚共用此名称。
+
+37. titan_doomed
+    自己所属泰坦进入濒毁状态时触发。
+
+38. titan_destroyed
+    自己所属泰坦被摧毁时触发。
+
+39. titan_core_ready
+    当前驾驶泰坦的核心充能就绪时触发。
+
+40. titan_core_active_start
+    当前驾驶泰坦的核心进入激活状态时触发。
+
+41. titan_core_active_end
+    当前驾驶泰坦的核心激活状态结束时触发。
+
+42. titan_vortex_shield_impact
+    驾驶泰坦时，敌方攻击实际被自己的涡旋盾或 Ion 涡旋盾吸收或挡住。
+
+43. titan_heat_shield_impact
+    驾驶泰坦时，敌方攻击实际被自己的热能盾挡住。
+
+44. titan_sword_block_impact
+    驾驶泰坦时，自己的剑格挡实际成功减免敌方攻击。
+
+45. titan_gun_shield_impact
+    驾驶泰坦时，敌方攻击实际击中自己的军团枪盾。
+
+46. titan_particle_wall_impact
+    驾驶泰坦时，敌方攻击实际击中自己部署的粒子墙。
+
+47. titan_vortex_shield_reflect
+    涡旋盾或 Ion 涡旋盾实际发射返还的子弹、导弹等时触发；空盾松手不触发。
+
+VR 手部交互与手柄同步（6 个）
+
+48. vr_item_grabbed_left
+    左手确认抓取枪械、手雷或支持的剧情物品；支撑手握上武器也可触发。
+
+49. vr_item_grabbed_right
+    右手确认抓取枪械、手雷或支持的剧情物品；支撑手握上武器也可触发。
+
+50. vr_grenade_thrown_predicted_left
+    本地预测左手成功投出手雷时触发；不是命中或爆炸反馈。
+
+51. vr_grenade_thrown_predicted_right
+    本地预测右手成功投出手雷时触发；不是命中或爆炸反馈。
+
+52. vr_controller_haptic_left
+    把过滤后剩余的左手柄振动同步到 TrueGear，按振幅缩放基础效果。
+
+53. vr_controller_haptic_right
+    把过滤后剩余的右手柄振动同步到 TrueGear，按振幅缩放基础效果。
+
+身体槽位与弹药袋（15 个插件内置背心特效）（15 个）
+
+54. vr_slot_item_taken_left_shoulder
+    从左后肩枪槽取出物品时触发对应身体位置的背心反馈。
+
+55. vr_slot_item_stored_left_shoulder
+    物品实际放回左后肩枪槽时触发对应身体位置的背心反馈。
+
+56. vr_slot_item_taken_right_shoulder
+    从右后肩枪槽取出物品时触发对应身体位置的背心反馈。
+
+57. vr_slot_item_stored_right_shoulder
+    物品实际放回右后肩枪槽时触发对应身体位置的背心反馈。
+
+58. vr_slot_item_taken_left_hip
+    从左腰枪槽取出物品时触发对应身体位置的背心反馈。
+
+59. vr_slot_item_stored_left_hip
+    物品实际放回左腰枪槽时触发对应身体位置的背心反馈。
+
+60. vr_slot_item_taken_right_hip
+    从右腰枪槽取出物品时触发对应身体位置的背心反馈。
+
+61. vr_slot_item_stored_right_hip
+    物品实际放回右腰枪槽时触发对应身体位置的背心反馈。
+
+62. vr_slot_item_taken_grenade
+    从胸前手雷槽取出物品时触发对应身体位置的背心反馈。
+
+63. vr_slot_item_stored_grenade
+    物品实际放回胸前手雷槽时触发对应身体位置的背心反馈。
+
+64. vr_slot_item_taken_shoulders
+    确认从肩部枪槽取出，但无法确定左右肩位置时，使用双肩背心反馈。
+
+65. vr_slot_item_stored_shoulders
+    确认放回肩部枪槽，但无法确定左右肩位置时，使用双肩背心反馈。
+
+66. vr_ammo_pouch_taken_left_shoulder
+    从左肩弹药袋成功拿出弹药时触发。
+
+67. vr_ammo_pouch_taken_right_shoulder
+    从右肩弹药袋成功拿出弹药时触发。
+
+68. vr_ammo_pouch_taken_shoulders
+    确认成功拿弹，但无法确定左右肩位置时，使用双肩背心反馈。
+
+

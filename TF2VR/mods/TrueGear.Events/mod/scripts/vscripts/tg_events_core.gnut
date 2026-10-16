@@ -1,0 +1,444 @@
+untyped
+
+// Origin: TrueGear.Events (original implementation).
+// Shared event contract. This mod observes gameplay and never writes game state.
+global function TrueGear_CoreInit
+global function TrueGearPlay
+global function TrueGearPlayPower
+global function TrueGear_PlayControllerHapticFrame
+global function TrueGear_SetVRHapticSources
+global function TrueGearPlayAngle
+global function TrueGear_RecordEvent
+global function TrueGear_AddEventListener
+global function TrueGear_Enabled
+global function TrueGear_PollInterval
+global function TrueGear_ShouldEmitLanding
+global function TrueGear_String
+global function TrueGear_Int
+global function TrueGear_Float
+global function TrueGear_Bool
+global function TrueGear_Vector
+global function TrueGear_PlayerFields
+global function TrueGear_EntityFields
+global function TrueGear_JsonEscape
+global function TrueGear_ReadVRHandState
+global function TrueGear_ReadVRSlotEvent
+global function TrueGear_ReadVRHapticEvent
+global function TrueGear_ReadVRHapticAmplitude
+global function TrueGear_UpdateVRBodyPoses
+global function TrueGear_ItemGripPulse
+global function TrueGear_ContinuousPlay
+
+struct
+{
+	bool initialized = false
+	int sequence = 0
+	bool dispatching = false
+	bool nativeActive = false
+	array<void functionref( string, string )> listeners
+} file
+
+// Called once for each campaign CLIENT/SERVER VM. Sequence numbers are per VM.
+void function TrueGear_CoreInit()
+{
+	if ( file.initialized )
+		return
+	file.initialized = true
+	file.nativeActive = GetConVarBool( "tg_events_enabled" ) && GetConVarBool( "tg_events_native" )
+	thread TrueGear_CoreNativeWatch()
+	TrueGearPlay( TrueGear_RecordEvent( "session_ready", "" ) )
+}
+
+// Engine-registered functions must be called as native globals, not looked up
+// in getroottable(). Northstar excludes this branch when the plugin is absent.
+bool function TrueGear_NativeCall( string functionName, string argument )
+{
+#if TRUEGEAR_NATIVE
+	try
+	{
+		if ( functionName == "TrueGear_SubmitEvent" )
+		{
+			TrueGear_SubmitEvent( argument )
+		}
+		else if ( functionName == "TrueGear_Reset" )
+			TrueGear_Reset( argument )
+		else
+			return false
+		return true
+	}
+	catch ( error )
+	{
+		// Observation failure remains isolated from gameplay and stays silent.
+	}
+#endif
+	return false
+}
+
+// Read-only native VR observation; -1 means the installed VR layout is unknown.
+// The native plugin checks the complete DLL identity before reading any state.
+int function TrueGear_ReadVRHandState()
+{
+#if TRUEGEAR_NATIVE
+	try
+	{
+		return TrueGear_GetVRHandState()
+	}
+	catch ( error )
+	{
+		// Retain legacy hooks if native observation is unavailable.
+	}
+#endif
+	return -1
+}
+
+// Each entry represents a native body-slot action captured before the next
+// input frame clears its action side; this is separate from grip sampling.
+int function TrueGear_ReadVRSlotEvent()
+{
+#if TRUEGEAR_NATIVE
+	try
+	{
+		return TrueGear_GetVRSlotEvent()
+	}
+	catch ( error ) {}
+#endif
+	return -1
+}
+
+// Each accepted OpenXR pulse supplies its physical controller side once.
+// A runtime-accepted request does not confirm perceived hardware feedback.
+int function TrueGear_ReadVRHapticEvent()
+{
+#if TRUEGEAR_NATIVE
+	try
+	{
+		return TrueGear_GetVRHapticEvent()
+	}
+	catch ( error ) {}
+#endif
+	return -1
+}
+
+// Pair with the side getter; native has removed the weapon rumble contribution.
+float function TrueGear_ReadVRHapticAmplitude()
+{
+#if TRUEGEAR_NATIVE
+	try
+	{
+		return TrueGear_GetVRHapticAmplitude()
+	}
+	catch ( error ) {}
+#endif
+	return 0.0
+}
+
+// Preserve the original controller pulse and synchronously identify its item
+// source for duplicate TrueGear filtering. Only an explicit zero may fall back.
+void function TrueGear_ItemGripPulse( int sideMask, bool grabbed )
+{
+#if CLIENT
+#if TRUEGEAR_NATIVE
+	try
+	{
+		if ( TrueGear_TryPulseHandsMapped( sideMask, grabbed ? "vr_item_grabbed" : "vr_item_released" ) != 0 )
+			return
+	}
+	catch ( error )
+	{
+		// An exception cannot establish whether the original pulse ran already.
+		return
+	}
+#endif
+	TF2VR_PulseHands( sideMask )
+#endif
+}
+
+// Actual Source world positions from the Cockpit pickup update. Native body
+// anchors use the same basis, so crossed hands still select the touched slot.
+void function TrueGear_UpdateVRBodyPoses( vector left, vector right, int leftKind, int rightKind )
+{
+	bool eligible = false
+	int projectileTicket = 0
+#if CLIENT
+	entity player = GetLocalViewPlayer()
+	eligible = IsValid( player ) && IsAlive( player ) && GetLocalClientPlayer() == player
+		&& !player.IsTitan() && !player.ContextAction_IsActive() && !player.IsWeaponDisabled()
+	projectileTicket = GetConVarInt( "tf2vr_projectile_ticket" )
+#endif
+#if TRUEGEAR_NATIVE
+	try
+	{
+		string fields = TrueGear_Vector( "left", left ) + TrueGear_Vector( "right", right )
+			+ TrueGear_Int( "left_kind", leftKind ) + TrueGear_Int( "right_kind", rightKind ) + TrueGear_Bool( "eligible", eligible )
+			+ TrueGear_Int( "projectile_ticket", projectileTicket )
+		TrueGear_SetVRBodyPoses( "{" + fields.slice( 1 ) + "}" )
+	}
+	catch ( error ) {}
+#endif
+}
+
+// Detect a switch-off even when no gameplay event is currently being emitted.
+// Reset only enqueues work in the native plugin; this thread never contacts a device.
+void function TrueGear_CoreNativeCheck()
+{
+	bool active = GetConVarBool( "tg_events_enabled" ) && GetConVarBool( "tg_events_native" )
+	if ( file.nativeActive && !active )
+		TrueGear_NativeCall( "TrueGear_Reset", "script_output_disabled" )
+	file.nativeActive = active
+}
+
+void function TrueGear_CoreNativeWatch()
+{
+	while ( true )
+	{
+		wait 0.1
+		TrueGear_CoreNativeCheck()
+	}
+}
+
+// Optional listeners receive hook diagnostics; playback has an independent payload.
+void function TrueGear_AddEventListener( void functionref( string, string ) listener )
+{
+	if ( !file.listeners.contains( listener ) )
+		file.listeners.append( listener )
+}
+
+// Disabling a category gates output, not baseline sampling or callback registration.
+bool function TrueGear_Enabled( string category )
+{
+	if ( !GetConVarBool( "tg_events_enabled" ) )
+		return false
+	return category == "session" || GetConVarBool( "tg_events_" + category )
+}
+
+// Avoid unbounded user-configured polling rates. Fast counters still aggregate.
+float function TrueGear_PollInterval()
+{
+	return clamp( GetConVarFloat( "tg_events_poll_interval" ), 0.01, 0.2 )
+}
+
+// Measure one airborne segment; steps below the configured drop stay silent.
+bool function TrueGear_ShouldEmitLanding( float fallDistance )
+{
+	return fallDistance == fallDistance && fallDistance - fallDistance == 0.0
+		&& fallDistance >= max( 0.0, GetConVarFloat( "tg_events_land_min_distance" ) )
+}
+
+// Playback accepts a final event name only. Hand selection belongs to the hook.
+void function TrueGearPlay( string name )
+{
+	TrueGear_QueuePlayback( name, "" )
+}
+
+// Preserve float32 amplitude through JSON; weak pulses produce no playback.
+void function TrueGearPlayPower( string name, float amplitude )
+{
+	if ( amplitude != amplitude || amplitude - amplitude != 0.0 || amplitude < 0.1
+		|| name.len() == 0 || name.len() > 256 )
+		return
+	for ( int i = 0; i < name.len(); i++ )
+	{
+		int ch = expect int( name[i] )
+		if ( !( ( ch >= 65 && ch <= 90 ) || ( ch >= 97 && ch <= 122 )
+			|| ( ch >= 48 && ch <= 57 ) || ch == 95 ) )
+			return
+	}
+	TrueGear_QueuePlayback( name, TrueGear_String( "playback", "power" )
+		+ ",\"amplitude\":" + format( "%.9g", amplitude ) )
+}
+
+// One drain submits both physical sides together; -1 marks an absent side.
+// Keep each raw float32 amplitude independent for native effect scaling.
+void function TrueGear_PlayControllerHapticFrame( float leftAmplitude, float rightAmplitude )
+{
+	bool leftValid = leftAmplitude == leftAmplitude && leftAmplitude - leftAmplitude == 0.0 && leftAmplitude >= 0.1
+	bool rightValid = rightAmplitude == rightAmplitude && rightAmplitude - rightAmplitude == 0.0 && rightAmplitude >= 0.1
+	if ( !leftValid && !rightValid )
+		return
+	if ( !leftValid )
+		leftAmplitude = -1.0
+	if ( !rightValid )
+		rightAmplitude = -1.0
+	TrueGear_QueuePlayback( "vr_controller_haptic_frame", TrueGear_String( "playback", "controller_haptic_frame" )
+		+ ",\"left_amplitude\":" + format( "%.9g", leftAmplitude )
+		+ ",\"right_amplitude\":" + format( "%.9g", rightAmplitude ) )
+}
+
+// Source metadata is a native control packet, never a named Player effect.
+// The caller supplies an array of exact graph names and their dedicated route.
+void function TrueGear_SetVRHapticSources( string sources )
+{
+	TrueGear_QueuePlayback( "vr_haptic_sources", ",\"sources\":" + sources )
+}
+
+// Internal state refresh for a continuous action. Physical effects still come
+// from the configured named Player event; the native worker owns repeat/stop.
+void function TrueGear_ContinuousPlay( string name, bool active )
+{
+	TrueGear_QueuePlayback( name, TrueGear_String( "playback", "continuous" ) + TrueGear_Bool( "active", active ) )
+}
+
+// The hook supplies the source position; this function reads the camera and
+// computes front=0, left=90, back=180, right=270 plus normalized world height.
+// Callers may choose a separate named effect when no direction can be read.
+void function TrueGearPlayAngle( string name, vector damageOrigin, string fallbackName = "" )
+{
+	if ( name.len() == 0 )
+		return
+#if CLIENT
+	try
+	{
+		entity player = GetLocalViewPlayer()
+		if ( IsValid( player ) && player == GetLocalClientPlayer() && damageOrigin != <0,0,0> )
+		{
+			vector cameraPosition = player.CameraPosition()
+			vector cameraAngles = player.CameraAngles()
+			vector delta = damageOrigin - cameraPosition
+			float distance = Length( delta )
+			if ( distance > 1.0 && distance < 1.0e30 )
+			{
+				float angle = 0.0
+				bool horizontalAvailable = delta.x * delta.x + delta.y * delta.y > 0.0001
+				if ( horizontalAvailable )
+				{
+					angle = VectorToAngles( delta ).y - cameraAngles.y
+					while ( angle >= 360.0 )
+						angle -= 360.0
+					while ( angle < 0.0 )
+						angle += 360.0
+				}
+				float vertical = clamp( delta.z / distance, -1.0, 1.0 )
+				TrueGear_QueuePlayback( name, TrueGear_String( "playback", "angle" )
+					+ TrueGear_Float( "angle_degrees", angle ) + TrueGear_Float( "vertical", vertical )
+					+ TrueGear_Bool( "direction_available", true )
+					+ TrueGear_Bool( "horizontal_direction_available", horizontalAvailable ) )
+				return
+			}
+		}
+	}
+	catch ( error )
+	{
+		// Missing camera/source information uses the named fallback below.
+	}
+#endif
+	TrueGear_QueuePlayback( fallbackName.len() > 0 ? fallbackName : name, TrueGear_Bool( "direction_available", false ) )
+}
+
+// Shared transport only: the public APIs never accept diagnostic field strings.
+void function TrueGear_QueuePlayback( string name, string fields )
+{
+	TrueGear_CoreNativeCheck()
+	if ( name.len() == 0 || !file.nativeActive || file.dispatching )
+		return
+	TrueGear_NativeCall( "TrueGear_SubmitEvent", TrueGear_EventPayload( name, fields, true ) )
+}
+
+string function TrueGear_EventPayload( string name, string fields, bool resolved )
+{
+	file.sequence++
+#if CLIENT
+	string vm = "client"
+#else
+	string vm = "server"
+#endif
+	string data = fields.len() > 0 ? fields.slice( 1 ) : ""
+	return "{\"schema\":\"truegear.events/1\",\"vm\":\"" + vm + "\",\"seq\":" + file.sequence
+		+ ",\"time\":" + format( "%.4f", Time() ) + ",\"map\":\"" + TrueGear_JsonEscape( GetMapName() )
+		+ "\",\"event\":\"" + TrueGear_JsonEscape( name )
+		+ "\",\"playback_name_resolved\":" + ( resolved ? "true" : "false" )
+		+ ",\"data\":{" + data + "}}"
+}
+
+// Listener payloads belong to the hook. Return only the name for TrueGearPlay;
+// neither the JSON fields nor listener state determine its playback routing.
+string function TrueGear_RecordEvent( string name, string fields = "" )
+{
+	if ( !GetConVarBool( "tg_events_enabled" ) || file.dispatching )
+		return ""
+	// tg_events_log remains a compatibility ConVar; scripts never print events.
+	if ( file.listeners.len() == 0 )
+		return name
+	string payload = TrueGear_EventPayload( name, fields, false )
+	array<void functionref( string, string )> listeners = clone file.listeners
+	file.dispatching = true
+	foreach ( listener in listeners )
+	{
+		try
+		{
+			listener( name, payload )
+		}
+		catch ( error )
+		{
+			// A failing listener must not interrupt the remaining listeners.
+		}
+	}
+	file.dispatching = false
+	return name
+}
+
+// Escape control characters for native transport and optional listener payloads.
+string function TrueGear_JsonEscape( string value )
+{
+	string result = ""
+	for ( int i = 0; i < value.len(); i++ )
+	{
+		string ch = value.slice( i, i + 1 )
+		if ( ch == "\"" )
+			result += "\\\""
+		else if ( ch == "\\" )
+			result += "\\\\"
+		else if ( value[i] < 32 )
+			result += format( "\\u%04x", value[i] )
+		else
+			result += ch
+	}
+	return result
+}
+
+string function TrueGear_String( string key, string value )
+{
+	return ",\"" + TrueGear_JsonEscape( key ) + "\":\"" + TrueGear_JsonEscape( value ) + "\""
+}
+
+string function TrueGear_Int( string key, int value )
+{
+	return ",\"" + TrueGear_JsonEscape( key ) + "\":" + value
+}
+
+string function TrueGear_Float( string key, float value )
+{
+	// NaN/Infinity are not valid JSON; preserve availability explicitly as null.
+	if ( value != value || value > 1.0e30 || value < -1.0e30 )
+		return ",\"" + TrueGear_JsonEscape( key ) + "\":null"
+	return ",\"" + TrueGear_JsonEscape( key ) + "\":" + format( "%.4f", value )
+}
+
+string function TrueGear_Bool( string key, bool value )
+{
+	return ",\"" + TrueGear_JsonEscape( key ) + "\":" + ( value ? "true" : "false" )
+}
+
+string function TrueGear_Vector( string key, vector value )
+{
+	return ",\"" + TrueGear_JsonEscape( key ) + "\":[" + format( "%.4f,%.4f,%.4f", value.x, value.y, value.z ) + "]"
+}
+
+// Keep entity metadata separate from player state; callers may pass NPCs/weapons.
+string function TrueGear_EntityFields( entity target, string prefix )
+{
+	if ( !IsValid( target ) )
+		return TrueGear_Int( prefix + "id", -1 )
+	return TrueGear_Int( prefix + "id", target.GetEntIndex() )
+		+ TrueGear_String( prefix + "class", target.GetClassName() )
+		+ TrueGear_Vector( prefix + "origin", target.GetOrigin() )
+}
+
+string function TrueGear_PlayerFields( entity player )
+{
+	if ( !IsValid( player ) )
+		return TrueGear_Int( "player_id", -1 )
+	return TrueGear_Int( "player_id", player.GetEntIndex() )
+		+ TrueGear_Bool( "titan", player.IsTitan() )
+		+ TrueGear_Vector( "origin", player.GetOrigin() )
+		+ TrueGear_Vector( "velocity", player.GetVelocity() )
+}

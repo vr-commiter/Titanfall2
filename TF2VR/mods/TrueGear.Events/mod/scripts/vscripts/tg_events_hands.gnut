@@ -1,0 +1,714 @@
+// Origin: TrueGear.Events. Hand routing and confirmed CircuitLord interactions.
+// CLIENT/SERVER are separate VMs; confirmed command results cross via a named message.
+global function TrueGear_HandsInit
+global function TrueGear_HandName
+global function TrueGear_HandEventName
+global function TrueGear_HandFields
+global function TrueGear_WeaponHandIndex
+#if CLIENT
+global function TrueGear_ObserveHandPoses
+global function TrueGear_ObserveItemGrip
+global function TrueGear_WeaponGripMask
+global function TrueGear_UpdateVRHapticSources
+#endif
+
+#if CLIENT
+struct TrueGear_HandPose
+{
+	vector left
+	vector right
+	vector leftHip
+	vector rightHip
+	float time
+}
+
+struct TrueGear_HandMatch
+{
+	int side = -1
+	float distance = -1.0
+	float margin = 0.0
+	float age = -1.0
+}
+
+struct
+{
+	bool initialized = false
+	entity player
+	array<TrueGear_HandPose> poses
+	int grenadeTicket = 0
+	int grenadeHand = -1
+	string grenadeWeapon = ""
+	int projectileTicket = 0
+	bool projectileBaseline = false
+	bool nativeHeldBaseline = false
+	int nativeGunHand = -1
+	int nativeGunGripMask = 0
+	int nativeGunSlot = -1
+	int nativeGunTicket = 0
+	int nativeGrenadeHand = -1
+	entity hapticSourcePlayer = null
+	string hapticSourceSettings = ""
+	string hapticSources = "[]"
+	float hapticSourceRefreshTime = 0.0
+} file
+#else
+struct
+{
+	bool initialized = false
+	entity grenadePlayer
+	int grenadeTicket = 0
+	string grenadeWeapon = ""
+} file
+#endif
+
+// These indices are CircuitLord's physical sides, not dominant/offhand roles.
+string function TrueGear_HandName( int side )
+{
+	return side == 0 ? "left" : ( side == 1 ? "right" : "unknown" )
+}
+
+// Hooks select the final physical-side event name before playback. An unknown
+// hand produces no output instead of choosing a default side.
+string function TrueGear_HandEventName( string name, int side, bool titan = false )
+{
+	if ( name.len() == 0 )
+		return ""
+	if ( titan )
+		return name + "_titan"
+	if ( side == 0 )
+		return name + "_left"
+	if ( side == 1 )
+		return name + "_right"
+	return ""
+}
+
+// Optional diagnostics; this field string is never passed into TrueGearPlay.
+string function TrueGear_HandFields( int side, string basis, bool inferred = false )
+{
+	bool known = side == 0 || side == 1
+	return TrueGear_String( "hand", TrueGear_HandName( side ) ) + TrueGear_Int( "hand_index", known ? side : -1 )
+		+ TrueGear_Bool( "hand_known", known ) + TrueGear_String( "hand_basis", basis ) + TrueGear_Bool( "hand_inferred", inferred )
+}
+
+// The native getter defaults to right with no gun, and always in a Titan.
+// It is useful for weapon routing at a sample, never as a grip-state detector.
+int function TrueGear_WeaponHandIndex( entity player )
+{
+#if CLIENT
+	if ( !IsValid( player ) || !IsAlive( player ) || player.IsTitan() )
+		return -1
+	entity weapon = player.GetActiveWeapon()
+	if ( !IsValid( weapon ) || weapon.GetWeaponClassName() == "tf2vr_empty_hands" )
+		return -1
+	int side = TF2VR_WeaponHand()
+	return side == 0 || side == 1 ? side : -1
+#else
+	return -1
+#endif
+}
+
+// Notify callbacks run AFTER the original handler; no command handler is replaced.
+void function TrueGear_HandsInit()
+{
+	if ( file.initialized )
+		return
+	file.initialized = true
+#if SERVER
+	AddClientCommandNotifyCallback( "tf2vr_pickup", TrueGear_PickupCompleted )
+	AddClientCommandNotifyCallback( "tf2vr_draw", TrueGear_DrawCompleted )
+	AddClientCommandNotifyCallback( "tf2vr_grenade", TrueGear_GrenadeCompleted )
+	AddClientCommandNotifyCallback( "tf2vr_cancel_grenade", TrueGear_GrenadeCancelled )
+	AddClientCommandNotifyCallback( "tf2vr_store_grenade", TrueGear_GrenadeStored )
+#else
+	AddServerToClientStringCommandCallback( "TrueGear_InteractionResult", TrueGear_InteractionResult )
+	thread TrueGear_HandsWatch_Threaded()
+#endif
+}
+
+#if SERVER
+// All metadata is from the finished command. Side is deliberately NOT encoded in tickets.
+void function TrueGear_SendInteraction( entity player, string action, int ticket, int kind, int target, int slot, bool accepted, bool hasPosition, vector position, string weapon )
+{
+	if ( !TrueGear_Enabled( "vr" ) || !IsValid( player ) )
+		return
+	if ( weapon == "" )
+		weapon = "-"
+	ServerToClientStringCommand( player, "TrueGear_InteractionResult " + action + " " + ticket + " " + kind + " " + target + " " + slot
+		+ " " + ( accepted ? 1 : 0 ) + " " + ( hasPosition ? 1 : 0 )
+		+ " " + position.x + " " + position.y + " " + position.z + " " + weapon )
+}
+
+// A positive matching ACK confirms acquisition/equipping, including duplicate gun pickups.
+void function TrueGear_PickupCompleted( entity player, array<string> args )
+{
+	try
+	{
+		if ( args.len() != 9 || !IsValid( player ) )
+			return
+		int ticket = args[0].tointeger()
+		int kind = args[2].tointeger()
+		bool accepted = ticket > 0 && GetConVarInt( kind == 0 ? "tf2vr_gun_ack" : "tf2vr_grenade_ack" ) == ticket
+		entity weapon = kind == 0 ? player.GetActiveWeapon() : player.GetOffhandWeapon( OFFHAND_ORDNANCE )
+		string name = accepted && IsValid( weapon ) ? weapon.GetWeaponClassName() : ""
+		if ( accepted && kind == 1 )
+		{
+			file.grenadePlayer = player
+			file.grenadeTicket = ticket
+			file.grenadeWeapon = name
+		}
+		TrueGear_SendInteraction( player, "pickup", ticket, kind, args[1].tointeger(), -1, accepted, true,
+			<args[3].tofloat(), args[4].tofloat(), args[5].tofloat()>, name )
+	}
+	catch ( error ) {}
+}
+
+// Holster draw has no acting hand in its command.
+void function TrueGear_DrawCompleted( entity player, array<string> args )
+{
+	try
+	{
+		if ( args.len() != 2 )
+			return
+		int ticket = args[0].tointeger()
+		bool accepted = ticket > 0 && GetConVarInt( "tf2vr_gun_ack" ) == ticket
+		TrueGear_SendInteraction( player, "draw", ticket, 0, -1, args[1].tointeger(), accepted, false, <0,0,0>,
+			accepted ? GetConVarString( "tf2vr_gun_name" ) : "" )
+	}
+	catch ( error ) {}
+}
+
+// Chest grenade acquisition is real, but its command supplies neither side nor position.
+void function TrueGear_GrenadeCompleted( entity player, array<string> args )
+{
+	try
+	{
+		if ( args.len() != 1 || !IsValid( player ) )
+			return
+		int ticket = args[0].tointeger()
+		bool accepted = ticket > 0 && GetConVarInt( "tf2vr_grenade_ack" ) == ticket
+		entity weapon = player.GetOffhandWeapon( OFFHAND_ORDNANCE )
+		string name = accepted && IsValid( weapon ) ? weapon.GetWeaponClassName() : ""
+		if ( accepted )
+		{
+			file.grenadePlayer = player
+			file.grenadeTicket = ticket
+			file.grenadeWeapon = name
+		}
+		TrueGear_SendInteraction( player, "grenade", ticket, 1, -1, 4, accepted, false, <0,0,0>, name )
+	}
+	catch ( error ) {}
+}
+
+// Store/cancel have no success ACK. Report the observed request, not confirmed release.
+void function TrueGear_GrenadeEndRequest( entity player, array<string> args, string action )
+{
+	try
+	{
+		if ( args.len() != 1 )
+			return
+		int ticket = args[0].tointeger()
+		bool tracked = player == file.grenadePlayer && ticket > 0 && ticket == file.grenadeTicket
+		TrueGear_SendInteraction( player, action, ticket, 1, -1, 4, tracked, false, <0,0,0>, tracked ? file.grenadeWeapon : "" )
+		if ( tracked )
+			file.grenadeTicket = 0
+	}
+	catch ( error ) {}
+}
+
+void function TrueGear_GrenadeCancelled( entity player, array<string> args )
+{
+	TrueGear_GrenadeEndRequest( player, args, "cancel" )
+}
+
+void function TrueGear_GrenadeStored( entity player, array<string> args )
+{
+	TrueGear_GrenadeEndRequest( player, args, "store" )
+}
+#endif
+
+#if CLIENT
+// Every entry point synchronizes identity, even before the first pose arrives.
+void function TrueGear_HandsSetPlayer( entity player )
+{
+	if ( file.player == player )
+		return
+	// Do not replay a previous local entity's queued slot actions after a
+	// death, spectator change or save restore. This also baselines the getter.
+	for ( int count = 0; count < 32; count++ )
+	{
+		if ( TrueGear_ReadVRSlotEvent() < 0 )
+			break
+	}
+	file.poses.clear()
+	file.grenadeTicket = 0
+	file.grenadeHand = -1
+	file.grenadeWeapon = ""
+	file.projectileBaseline = false
+	file.nativeHeldBaseline = false
+	file.nativeGunHand = -1
+	file.nativeGunGripMask = 0
+	file.nativeGunSlot = -1
+	file.nativeGunTicket = 0
+	file.nativeGrenadeHand = -1
+	file.player = player
+}
+
+// Physical support grip is a native latch; proximity and pickup target masks
+// do not prove that the other hand is holding the weapon.
+int function TrueGear_WeaponGripMask()
+{
+	int state = TrueGear_ReadVRHandState()
+	if ( state < 0 || ( state & 32 ) == 0 )
+		return 0
+	int side = ( state & 3 ) - 1
+	if ( side != 0 && side != 1 )
+		return 0
+	return ( state & 16 ) != 0 ? 3 : ( 1 << side )
+}
+
+void function TrueGear_NativeHeldEmit( entity player, int side, bool grenade, int slot, int ticket, bool support = false )
+{
+	if ( !TrueGear_Enabled( "vr" ) )
+		return
+	string name = TrueGear_RecordEvent( "vr_item_grabbed",
+		TrueGear_PlayerFields( player ) + TrueGear_HandFields( side, support ? "native_support_grip_latch" : "native_confirmed_held_hand" )
+		+ TrueGear_String( "hand_role", "actor" ) + TrueGear_String( "scope", support ? "weapon_support_grip" : "native_held_item" ) + TrueGear_Bool( "support_grip", support )
+		+ TrueGear_String( "item_type", grenade ? "grenade" : "weapon" )
+		+ TrueGear_Int( "slot", slot ) + TrueGear_Int( "ticket", ticket )
+		+ TrueGear_Bool( "success_confirmed", true )
+		+ TrueGear_String( "confirmation", "native_ack_and_physical_hand_state" ) )
+	// Only confirmed grabs play a hand effect. Holder state still follows
+	// releases independently, and body-slot stores keep their own events.
+	TrueGearPlay( TrueGear_HandEventName( name, side, false ) )
+}
+
+// Body gun slots 0/1/3 have an independent action stream. The native observer
+// retains the request source before ACK, so ground pickups, support grips and
+// hand transfers cannot become slot takes. A store needs the native release
+// action side, not merely a disappeared holder. Its location is independent
+// of the actor's hand and plays an additional, separately named body effect.
+void function TrueGear_BodySlotsTick( entity player )
+{
+	array<string> locations = [ "left_shoulder", "right_shoulder", "left_hip", "right_hip", "grenade", "shoulders" ]
+	array<string> takenNames = [
+		"vr_slot_item_taken_left_shoulder", "vr_slot_item_taken_right_shoulder",
+		"vr_slot_item_taken_left_hip", "vr_slot_item_taken_right_hip",
+		"vr_slot_item_taken_grenade", "vr_slot_item_taken_shoulders"
+	]
+	array<string> storedNames = [
+		"vr_slot_item_stored_left_shoulder", "vr_slot_item_stored_right_shoulder",
+		"vr_slot_item_stored_left_hip", "vr_slot_item_stored_right_hip",
+		"vr_slot_item_stored_grenade", "vr_slot_item_stored_shoulders"
+	]
+	for ( int count = 0; count < 32; count++ )
+	{
+		int state = TrueGear_ReadVRSlotEvent()
+		if ( state < 0 )
+			return
+		int side = state & 1
+		bool stored = ( state & 2 ) != 0
+		int slot = ( state >> 2 ) & 7
+		int location = ( state >> 5 ) & 7
+		int ticket = ( state >> 16 ) & 0x3fff
+		if ( player.IsTitan() || GetLocalClientPlayer() != player || location >= locations.len() )
+			continue
+		if ( !TrueGear_Enabled( "vr" ) )
+			continue
+		// Slot 5 is the transport tag for the dedicated native successful
+		// ammo-pouch counter. It is not a weapon inventory slot or a release.
+		if ( slot == 5 )
+		{
+			if ( stored )
+				continue
+			TrueGearPlay( TrueGear_RecordEvent( location == 0 ? "vr_ammo_pouch_taken_left_shoulder"
+				: ( location == 1 ? "vr_ammo_pouch_taken_right_shoulder" : "vr_ammo_pouch_taken_shoulders" ),
+				TrueGear_PlayerFields( player ) + TrueGear_HandFields( side, "native_reload_offhand" )
+				+ TrueGear_String( "hand_role", "actor" ) + TrueGear_String( "scope", "ammo_pouch" )
+				+ TrueGear_String( "item_type", "ammunition" ) + TrueGear_String( "action", "take" )
+				+ TrueGear_String( "slot_location", locations[location] ) + TrueGear_Int( "slot_location_index", location )
+				+ TrueGear_Int( "ticket", ticket ) + TrueGear_Bool( "success_confirmed", true )
+				+ TrueGear_String( "confirmation", "native_ammo_pouch_pickup_counter" ) ) )
+			continue
+		}
+		string name = stored ? storedNames[location] : takenNames[location]
+		TrueGearPlay( TrueGear_RecordEvent( name,
+			TrueGear_PlayerFields( player ) + TrueGear_HandFields( side, "native_body_slot_action" )
+			+ TrueGear_String( "hand_role", "actor" ) + TrueGear_String( "scope", "body_slot" )
+			+ TrueGear_String( "slot_location", locations[location] ) + TrueGear_Int( "slot_location_index", location )
+			+ TrueGear_String( "item_type", slot == 4 ? "grenade" : "weapon" ) + TrueGear_String( "action", stored ? "store" : "take" )
+			+ TrueGear_Int( "slot", slot ) + TrueGear_Int( "ticket", ticket )
+			+ TrueGear_Bool( "success_confirmed", true )
+			+ TrueGear_String( "confirmation", slot == 4 ? ( stored ? "native_grenade_store_without_throw" : "native_chest_request_and_ack" )
+				: ( stored ? "native_holster_release_action" : "native_draw_request_and_ack" ) ) ) )
+	}
+}
+
+// This fresh CLIENT path also runs with old SERVER saves. Baseline an already
+// held object; pending/rejected acquisitions never become successful grabs.
+void function TrueGear_NativeHeldTick( entity player )
+{
+	TrueGear_BodySlotsTick( player )
+	if ( player.IsTitan() || GetLocalClientPlayer() != player )
+	{
+		file.nativeHeldBaseline = false
+		return
+	}
+	int state = TrueGear_ReadVRHandState()
+	if ( state < 0 )
+	{
+		// A temporarily unavailable sample does not mean the player released
+		// the item. Keep the previous valid holders until a valid sample returns.
+		return
+	}
+	int gunHand = ( state & 3 ) - 1
+	int grenadeHand = ( ( state >> 2 ) & 3 ) - 1
+	bool gunConfirmed = ( state & 32 ) != 0
+	bool grenadeConfirmed = ( state & 64 ) != 0
+	int slotCode = ( state >> 7 ) & 3
+	int slot = slotCode == 1 ? 0 : ( slotCode == 2 ? 1 : ( slotCode == 3 ? 3 : -1 ) )
+	int gunTicket = ( state >> 16 ) & 0x3fff
+	if ( !file.nativeHeldBaseline )
+	{
+		file.nativeGunHand = gunConfirmed ? gunHand : -1
+		file.nativeGunGripMask = gunConfirmed && gunHand >= 0 ? ( ( state & 16 ) != 0 ? 3 : ( 1 << gunHand ) ) : 0
+		file.nativeGunSlot = slot
+		file.nativeGunTicket = gunTicket
+		file.nativeGrenadeHand = grenadeConfirmed ? grenadeHand : -1
+		file.nativeHeldBaseline = true
+		return
+	}
+	// Track physical holders rather than primary/support roles, so changing
+	// the dominant gun hand while both grips stay engaged causes no fake grab.
+	int nextMask = file.nativeGunGripMask
+	if ( gunHand < 0 )
+		nextMask = 0
+	else if ( gunConfirmed )
+		nextMask = ( state & 16 ) != 0 ? 3 : ( 1 << gunHand )
+	for ( int side = 0; side < 2; side++ )
+	{
+		bool was = ( file.nativeGunGripMask & ( 1 << side ) ) != 0
+		bool held = ( nextMask & ( 1 << side ) ) != 0
+		if ( !was && held )
+			TrueGear_NativeHeldEmit( player, side, false, slot, gunTicket, side != gunHand )
+	}
+	// A confirmed replacement can keep the same physical hand/slot occupied.
+	if ( gunConfirmed && gunHand >= 0 && gunHand == file.nativeGunHand
+		&& ( nextMask & file.nativeGunGripMask ) != 0
+		&& ( slot != file.nativeGunSlot || gunTicket != file.nativeGunTicket ) )
+	{
+		TrueGear_NativeHeldEmit( player, gunHand, false, slot, gunTicket )
+	}
+	file.nativeGunGripMask = nextMask
+	if ( gunHand < 0 )
+		file.nativeGunHand = -1
+	else if ( gunConfirmed )
+	{
+		file.nativeGunHand = gunHand
+		file.nativeGunSlot = slot
+		file.nativeGunTicket = gunTicket
+	}
+	if ( file.nativeGrenadeHand >= 0 && grenadeHand < 0 )
+	{
+		file.nativeGrenadeHand = -1
+	}
+	if ( grenadeConfirmed && grenadeHand >= 0 && grenadeHand != file.nativeGrenadeHand )
+	{
+		int ticket = GetConVarInt( "tf2vr_grenade_ack" )
+		TrueGear_NativeHeldEmit( player, grenadeHand, true, 4, ticket )
+		file.nativeGrenadeHand = grenadeHand
+		file.grenadeHand = grenadeHand
+		file.grenadeTicket = ticket
+		entity weapon = player.GetOffhandWeapon( OFFHAND_ORDNANCE )
+		file.grenadeWeapon = IsValid( weapon ) ? weapon.GetWeaponClassName() : ""
+	}
+}
+
+// Filled from actual per-frame hand/hip poses by a generated local overlay.
+void function TrueGear_ObserveHandPoses( vector left, vector right, vector leftHip, vector rightHip )
+{
+	entity player = GetLocalViewPlayer()
+	if ( !IsValid( player ) || !IsAlive( player ) )
+	{
+		TrueGear_HandsSetPlayer( null )
+		return
+	}
+	TrueGear_HandsSetPlayer( player )
+	if ( GetLocalClientPlayer() == player )
+		TrueGear_UpdateVRBodyPoses( left, right, GetConVarInt( "tf2vr_pickup_kind_left" ), GetConVarInt( "tf2vr_pickup_kind_right" ) )
+	float now = Time()
+	TrueGear_BodySlotsTick( player )
+	if ( file.poses.len() > 0 )
+	{
+		TrueGear_HandPose last = file.poses[file.poses.len() - 1]
+		if ( now < last.time || DistanceSqr( left, last.left ) > 40000.0 || DistanceSqr( right, last.right ) > 40000.0 )
+			file.poses.clear()
+	}
+	while ( file.poses.len() > 0 && ( now - file.poses[0].time > 0.25 || file.poses.len() >= 48 ) )
+		file.poses.remove( 0 )
+	TrueGear_HandPose pose
+	pose.left = left
+	pose.right = right
+	pose.leftHip = leftHip
+	pose.rightHip = rightHip
+	pose.time = now
+	file.poses.append( pose )
+}
+
+// Match request position against recent poses. Crossed hands, stale or distant poses stay unknown.
+TrueGear_HandMatch function TrueGear_MatchRequestHand( vector position )
+{
+	TrueGear_HandMatch result
+	array<float> nearest = [ 1.0e20, 1.0e20 ]
+	array<float> ages = [ -1.0, -1.0 ]
+	foreach ( pose in file.poses )
+	{
+		float age = Time() - pose.time
+		if ( age < 0.0 || age > 0.25 )
+			continue
+		array<vector> hands = [ pose.left, pose.right ]
+		foreach ( int side, vector hand in hands )
+		{
+			float distance = Distance( position, hand )
+			if ( distance < nearest[side] )
+			{
+				nearest[side] = distance
+				ages[side] = age
+			}
+		}
+	}
+	int candidate = nearest[0] < nearest[1] ? 0 : 1
+	if ( ages[candidate] < 0.0 )
+		return result
+	result.distance = nearest[candidate]
+	result.margin = nearest[1 - candidate] - nearest[candidate]
+	result.age = ages[candidate]
+	// 12 cm maximum error; competing hand must be at least 5 cm farther away.
+	if ( result.distance <= 0.12 / 0.0254 && result.margin >= 0.05 / 0.0254 )
+		result.side = candidate
+	return result
+}
+
+// Success is server-confirmed; hand attribution is separately labelled.
+void function TrueGear_InteractionResult( array<string> args )
+{
+	try
+	{
+		// Native confirmed-state observation carries the physical actor and also
+		// covers old saves. Keep this SERVER result path as the legacy fallback.
+		if ( TrueGear_ReadVRHandState() >= 0 )
+			return
+		entity player = GetLocalViewPlayer()
+		if ( args.len() != 11 || !TrueGear_Enabled( "vr" ) || !IsValid( player ) || !IsAlive( player ) )
+			return
+		TrueGear_HandsSetPlayer( player )
+		string action = args[0]
+		int ticket = args[1].tointeger()
+		int kind = args[2].tointeger()
+		bool accepted = args[5] == "1"
+		bool hasPosition = args[6] == "1"
+		string weapon = args[10] == "-" ? "" : args[10]
+		int side = -1
+		bool inferredHand = false
+		string basis = "operation_hand_not_exposed"
+		string fields = TrueGear_PlayerFields( player ) + TrueGear_Int( "ticket", ticket ) + TrueGear_String( "action", action )
+			+ TrueGear_Int( "target_id", args[3].tointeger() ) + TrueGear_Int( "slot", args[4].tointeger() )
+			+ TrueGear_String( "item_type", kind == 0 ? "weapon" : "grenade" ) + TrueGear_String( "weapon", weapon )
+			+ TrueGear_String( "hand_role", "actor" )
+		if ( hasPosition )
+		{
+			vector position = <args[7].tofloat(), args[8].tofloat(), args[9].tofloat()>
+			TrueGear_HandMatch match = TrueGear_MatchRequestHand( position )
+			side = match.side
+			basis = "request_position_nearest_recent_hand"
+			inferredHand = true
+			fields += TrueGear_Vector( "request_position", position ) + TrueGear_Float( "hand_match_distance", match.distance )
+				+ TrueGear_Float( "hand_match_margin", match.margin ) + TrueGear_Float( "hand_sample_age", match.age )
+		}
+		else if ( action == "draw" && accepted )
+		{
+			// Native may not have consumed the ACK yet. Even the same weapon
+			// class can still have a default/previous side here. Do not route
+			// an actual draw to that side.
+			fields += TrueGear_String( "weapon_hand_at_result_sample", TrueGear_HandName( TrueGear_WeaponHandIndex( player ) ) )
+		}
+		else if ( ( action == "cancel" || action == "store" ) && ticket == file.grenadeTicket )
+		{
+			side = file.grenadeHand
+			basis = "tracked_grenade_acquisition_hand"
+			inferredHand = true
+		}
+		fields += TrueGear_HandFields( side, basis, inferredHand )
+		if ( action == "cancel" || action == "store" )
+		{
+			TrueGearPlay( TrueGear_HandEventName( TrueGear_RecordEvent( action == "store" ? "vr_grenade_store_requested" : "vr_grenade_cancel_requested",
+				fields + TrueGear_Bool( "tracked_ticket", accepted ) + TrueGear_Bool( "release_confirmed", false ) ), side, false ) )
+			if ( ticket == file.grenadeTicket )
+				file.grenadeTicket = 0
+			return
+		}
+		TrueGearPlay( TrueGear_HandEventName( TrueGear_RecordEvent( accepted ? "vr_item_grabbed" : "vr_item_grab_rejected",
+			fields + TrueGear_Bool( "success_confirmed", accepted ) + TrueGear_String( "confirmation", "server_command_ack" ) ), side, false ) )
+		if ( accepted && kind == 1 )
+		{
+			file.grenadeTicket = ticket
+			file.grenadeHand = side
+			file.grenadeWeapon = weapon
+		}
+	}
+	catch ( error ) {}
+}
+
+// Direct side-bearing grip transitions for SERE kit drawers, knife and data core.
+void function TrueGear_ObserveItemGrip( entity player, int side, int target, bool grabbed )
+{
+	if ( !TrueGear_Enabled( "vr" ) || !IsValid( player ) || target < 1 || target > 3 )
+		return
+	TrueGear_HandsSetPlayer( player )
+	// The overlay still observes releases and calls the original controller
+	// pulse. Only the independent TrueGear grab effect is produced here.
+	if ( !grabbed )
+		return
+	array<string> names = [ "none", "drawer", "knife", "data_core" ]
+	TrueGearPlay( TrueGear_HandEventName( TrueGear_RecordEvent( "vr_item_grabbed", TrueGear_PlayerFields( player )
+		+ TrueGear_HandFields( side, "script_grip_side" ) + TrueGear_String( "hand_role", "actor" )
+		+ TrueGear_String( "scope", "sere_kit" ) + TrueGear_String( "item_type", names[target] ) + TrueGear_Int( "item_kind", target )
+		+ TrueGear_Bool( "success_confirmed", true ) + TrueGear_String( "confirmation", "script_grip_transition" ) ), side, false ) )
+}
+
+// Player settings provide the actual native graph names, including Titan
+// variants. Cache field lookups per player/settings identity, and periodically
+// resend metadata so native session resets cannot lose the source map. Empty
+// settings retry later; no gameplay action or output is held for this refresh.
+void function TrueGear_UpdateVRHapticSources( entity player )
+{
+	if ( !IsValid( player ) || GetLocalClientPlayer() != player )
+	{
+		file.hapticSourcePlayer = null
+		file.hapticSourceSettings = ""
+		file.hapticSources = "[]"
+		file.hapticSourceRefreshTime = 0.0
+		return
+	}
+	string settings
+	try
+	{
+		settings = player.GetPlayerSettings()
+	}
+	catch ( error )
+	{
+		return
+	}
+	float now = Time()
+	if ( file.hapticSourcePlayer == player && file.hapticSourceSettings == settings )
+	{
+		if ( now < file.hapticSourceRefreshTime && file.hapticSourceRefreshTime - now <= 1.0 )
+			return
+		if ( file.hapticSources != "[]" )
+		{
+			TrueGear_SetVRHapticSources( file.hapticSources )
+			file.hapticSourceRefreshTime = now + 1.0
+			return
+		}
+	}
+	array<string> keys = [ "rumbleOnJump", "rumbleOnDoubleJump", "rumbleOnLandingSoft", "rumbleOnLandingHard",
+		"rumbleOnSlideBegin", "rumbleOnDodge" ]
+	array<string> routes = [ "movement_jump", "movement_double_jump", "movement_land", "movement_land",
+		"movement_slide_start", "movement_dash" ]
+	string sources = "["
+	for ( int index = 0; index < keys.len(); index++ )
+	{
+		try
+		{
+			var raw = player.GetPlayerSettingsField( keys[index] )
+			if ( typeof raw != "string" )
+				continue
+			string graph = expect string( raw )
+			if ( graph.len() == 0 )
+				continue
+			if ( sources.len() > 1 )
+				sources += ","
+			sources += "{\"event\":\"" + TrueGear_JsonEscape( routes[index] )
+				+ "\",\"graph\":\"" + TrueGear_JsonEscape( graph ) + "\"}"
+		}
+		catch ( error )
+		{
+			// One unavailable setting must not hide other known source graphs.
+		}
+	}
+	file.hapticSources = sources + "]"
+	TrueGear_SetVRHapticSources( file.hapticSources )
+	file.hapticSourcePlayer = player
+	file.hapticSourceSettings = settings
+	file.hapticSourceRefreshTime = now + 1.0
+}
+
+// Drain even while disabled or without a player, so old controller pulses are
+// not replayed when output resumes. Device side is independent of acting hand.
+void function TrueGear_ControllerHapticsTick( entity player )
+{
+	bool enabled = IsValid( player ) && IsAlive( player ) && GetLocalClientPlayer() == player
+		&& TrueGear_Enabled( "vr" ) && GetConVarBool( "tg_events_controller_haptics" )
+	float leftAmplitude = -1.0
+	float rightAmplitude = -1.0
+	for ( int count = 0; count < 32; count++ )
+	{
+		int side = TrueGear_ReadVRHapticEvent()
+		float amplitude = TrueGear_ReadVRHapticAmplitude()
+		if ( side < 0 )
+			break
+		if ( !enabled || ( side != 0 && side != 1 ) || amplitude != amplitude
+			|| amplitude - amplitude != 0.0 || amplitude < 0.1 )
+			continue
+		TrueGear_RecordEvent( side == 0 ? "vr_controller_haptic_left" : "vr_controller_haptic_right",
+			TrueGear_PlayerFields( player ) + TrueGear_HandFields( side, "openxr_haptic_output" )
+			+ TrueGear_String( "controller_side", TrueGear_HandName( side ) ) + TrueGear_String( "hand_role", "controller" )
+			+ TrueGear_String( "detection", "openxr_haptic_output" ) + TrueGear_Bool( "runtime_accepted", true )
+			+ ",\"amplitude\":" + format( "%.9g", amplitude ) )
+		// The original side route accepts only its first pulse in this drain.
+		if ( side == 0 && leftAmplitude < 0.1 )
+			leftAmplitude = amplitude
+		else if ( side == 1 && rightAmplitude < 0.1 )
+			rightAmplitude = amplitude
+	}
+	TrueGear_PlayControllerHapticFrame( leftAmplitude, rightAmplitude )
+}
+
+// Projectile ticket records a client-predicted throw, including its actual projectile entity.
+void function TrueGear_HandsWatch_Threaded()
+{
+	while ( true )
+	{
+		wait TrueGear_PollInterval()
+		try
+		{
+			entity player = GetLocalViewPlayer()
+			TrueGear_UpdateVRHapticSources( player )
+			TrueGear_ControllerHapticsTick( player )
+			if ( !IsValid( player ) || !IsAlive( player ) )
+			{
+				TrueGear_HandsSetPlayer( null )
+				continue
+			}
+			TrueGear_HandsSetPlayer( player )
+			TrueGear_NativeHeldTick( player )
+			int ticket = GetConVarInt( "tf2vr_projectile_ticket" )
+			if ( file.projectileBaseline && ticket > 0 && ticket != file.projectileTicket && TrueGear_Enabled( "vr" ) )
+			{
+				bool tracked = ticket == file.grenadeTicket
+				TrueGearPlay( TrueGear_HandEventName( TrueGear_RecordEvent( "vr_grenade_thrown_predicted", TrueGear_PlayerFields( player )
+					+ TrueGear_HandFields( tracked ? file.grenadeHand : -1, "tracked_grenade_acquisition_hand", true )
+					+ TrueGear_String( "hand_role", "actor" ) + TrueGear_Int( "ticket", ticket )
+					+ TrueGear_Int( "projectile_id", GetConVarInt( "tf2vr_projectile_entity" ) ) + TrueGear_Bool( "predicted", true )
+					+ TrueGear_String( "weapon", tracked ? file.grenadeWeapon : "" ) ), tracked ? file.grenadeHand : -1, false ) )
+				if ( tracked )
+					file.grenadeTicket = 0
+			}
+			file.projectileTicket = ticket
+			file.projectileBaseline = true
+		}
+		catch ( error )
+		{
+		}
+	}
+}
+#endif
